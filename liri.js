@@ -3,14 +3,15 @@ var Spotify = require("node-spotify-api");
 var axios = require("axios");
 var moment = require("moment");
 var fs = require("fs")
+var stringifyObject = require('stringify-object');
 var keys = require("./keys.js");
 var spotify = new Spotify(keys.spotify);
 
 var cmd = process.argv[2];
-var queryName = process.argv[3];
+var queryName = process.argv.slice(3).join(" ");
 
 function actions(cmd, queryName){
-    switch (cmd) {
+    switch(cmd) {
         case "spotify-this-song":
             spotifySearch(queryName)
             break;
@@ -45,16 +46,24 @@ function spotifySearch(queryName) {
                     if (item < (spotifyPath[a].artists).length - 1) {
                         output.artists += ", "
                     }
+                    
                 }
                 console.log(output)
+                fs.appendFile("log.txt", "searchTerm: " + queryName + "\n" + stringifyObject(output)+ "\n", function(err) {
+                    if (err) {
+                        return console.log(err);
+                    }
+                });
+                
             }
             })
             .catch(function(err) {
             console.log(err);
             });
+            
 }
 
-function concertSearch(cmd, queryName) {
+function concertSearch(queryName) {
     axios.get("https://rest.bandsintown.com/artists/" + queryName + "/events?app_id=codingbootcamp")
     .then(function(response){
         var venueData = response.data;
@@ -68,6 +77,11 @@ function concertSearch(cmd, queryName) {
                 "eventDate": moment(date).format("L")
             }
             console.log(output)
+            fs.appendFile("log.txt", "searchTerm: " + queryName + "\n" + stringifyObject(output)+ "\n", function(err) {
+                if (err) {
+                    return console.log(err);
+                }
+            });
         }
     })
     .catch(function(error) {
@@ -79,7 +93,7 @@ function movieSearch(queryName) {
     if(!queryName){
         queryName = "Mr. Nobody"
     }
-    var queryUrl = "http://www.omdbapi.com/?t=" + queryName + "&y=&plot=short&apikey=trilogy";
+    var queryUrl = "http://www.omdbapi.com/?t=" + queryName + "&apikey=trilogy";
 
     console.log(queryUrl);
     
@@ -97,6 +111,11 @@ function movieSearch(queryName) {
             "actors": resp.Actors
         }
         console.log(omdbOutput)
+        fs.appendFile("log.txt", "searchTerm: " + queryName + "\n" + stringifyObject(omdbOutput)+ "\n", function(err) {
+            if (err) {
+                return console.log(err);
+            }
+        });
       })
       .catch(function(error) {
         if (error.response) {
