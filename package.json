@@ -31,6 +31,6 @@
     "omdb": "^0.8.0",
     "omdb-client": "^2.0.0",
     "stringify-object": "^6.0.0",
-    "xhr2": "^0.2.0"
+    "xhr2": "^0.2.1"
   }
 }
